@@ -48,6 +48,15 @@ enum AuditActionType {
   DELETE
 }
 
+enum NotificationType {
+  COMPLIANCE_RECORD_CREATED
+  COMPLIANCE_RECORD_UPDATED
+  COMMENT_ADDED
+  ACTION_ASSIGNED
+  ACTION_OVERDUE
+  REVIEW_DATE_DUE_SOON
+}
+
 model Role {
   id          Int       @id @default(autoincrement())
   code        RoleCode  @unique
@@ -208,17 +217,18 @@ model ActionSite {
 model Notification {
   id                 String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   recipientProfileId String?    @db.Uuid
+  type               NotificationType
   title              String
   message            String
-  entityType         EntityType
-  entityId           String
-  readAt             DateTime?
+  relatedEntityType  EntityType
+  relatedEntityId    String
+  isRead             Boolean    @default(false)
   createdAt          DateTime   @default(now())
 
   recipient          Profile?   @relation("NotificationRecipient", fields: [recipientProfileId], references: [id], onDelete: SetNull)
 
-  @@index([recipientProfileId, readAt])
-  @@index([entityType, entityId])
+  @@index([recipientProfileId, isRead])
+  @@index([relatedEntityType, relatedEntityId])
   @@index([createdAt])
 }
 
