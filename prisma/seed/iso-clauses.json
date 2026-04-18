@@ -1,50 +1,402 @@
 [
   {
-    "clauseCode": "4.1",
+    "clauseNumber": "4.1",
     "title": "Understanding the organization and its context",
-    "description": "Determine external and internal issues relevant to purpose and strategic direction.",
-    "sortOrder": 401
+    "plainEnglishExplanation": "Understand internal and external issues that could affect your business and QMS.",
+    "requirementSummary": "Determine internal and external issues relevant to the organisation’s purpose and strategic direction.",
+    "parentClauseNumber": null,
+    "sortOrder": 1
   },
   {
-    "clauseCode": "4.2",
+    "clauseNumber": "4.2",
     "title": "Understanding the needs and expectations of interested parties",
-    "description": "Identify interested parties and their requirements relevant to the QMS.",
-    "sortOrder": 402
+    "plainEnglishExplanation": "Identify stakeholders and understand what they need or expect from you.",
+    "requirementSummary": "Identify interested parties and their relevant needs and expectations.",
+    "parentClauseNumber": null,
+    "sortOrder": 2
   },
   {
-    "clauseCode": "5.1",
-    "title": "Leadership and commitment",
-    "description": "Top management demonstrates leadership and commitment to the QMS.",
-    "sortOrder": 501
+    "clauseNumber": "4.3",
+    "title": "Determining the scope of the quality management system",
+    "plainEnglishExplanation": "Clearly define what parts of the business the QMS applies to.",
+    "requirementSummary": "Define and maintain the scope of the QMS considering context and interested parties.",
+    "parentClauseNumber": null,
+    "sortOrder": 3
   },
   {
-    "clauseCode": "6.1",
+    "clauseNumber": "4.4",
+    "title": "Quality management system and its processes",
+    "plainEnglishExplanation": "Define, manage and improve your key business processes.",
+    "requirementSummary": "Establish, implement, maintain and improve QMS processes and their interactions.",
+    "parentClauseNumber": null,
+    "sortOrder": 4
+  },
+  {
+    "clauseNumber": "5.1.1",
+    "title": "Leadership and commitment – general",
+    "plainEnglishExplanation": "Top management must actively lead and support the QMS.",
+    "requirementSummary": "Demonstrate leadership and commitment to the QMS and its effectiveness.",
+    "parentClauseNumber": null,
+    "sortOrder": 5
+  },
+  {
+    "clauseNumber": "5.1.2",
+    "title": "Leadership and commitment – customer focus",
+    "plainEnglishExplanation": "Ensure customer requirements are understood and met.",
+    "requirementSummary": "Demonstrate leadership and commitment to customer focus.",
+    "parentClauseNumber": null,
+    "sortOrder": 6
+  },
+  {
+    "clauseNumber": "5.2.1",
+    "title": "Establishing the quality policy",
+    "plainEnglishExplanation": "Create a quality policy aligned with the business direction.",
+    "requirementSummary": "Establish a quality policy appropriate to the organisation.",
+    "parentClauseNumber": null,
+    "sortOrder": 7
+  },
+  {
+    "clauseNumber": "5.2.2",
+    "title": "Communicating the quality policy",
+    "plainEnglishExplanation": "Ensure the quality policy is communicated and understood.",
+    "requirementSummary": "Communicate, implement and maintain the quality policy.",
+    "parentClauseNumber": null,
+    "sortOrder": 8
+  },
+  {
+    "clauseNumber": "5.3",
+    "title": "Organizational roles, responsibilities and authorities",
+    "plainEnglishExplanation": "Clearly assign responsibility and authority within the QMS.",
+    "requirementSummary": "Assign and communicate organisational roles and responsibilities.",
+    "parentClauseNumber": null,
+    "sortOrder": 9
+  },
+  {
+    "clauseNumber": "6.1",
     "title": "Actions to address risks and opportunities",
-    "description": "Plan actions to address risks and opportunities and integrate into QMS processes.",
-    "sortOrder": 601
+    "plainEnglishExplanation": "Identify risks and opportunities and plan actions to manage them.",
+    "requirementSummary": "Determine risks and opportunities and plan actions.",
+    "parentClauseNumber": null,
+    "sortOrder": 10
   },
   {
-    "clauseCode": "7.5",
-    "title": "Documented information",
-    "description": "Control and maintain documented information required by the QMS and ISO 9001.",
-    "sortOrder": 705
+    "clauseNumber": "6.2",
+    "title": "Quality objectives and planning to achieve them",
+    "plainEnglishExplanation": "Set measurable quality objectives and plan how to achieve them.",
+    "requirementSummary": "Establish quality objectives and plans to achieve them.",
+    "parentClauseNumber": null,
+    "sortOrder": 11
   },
   {
-    "clauseCode": "8.7",
+    "clauseNumber": "6.3",
+    "title": "Planning of changes",
+    "plainEnglishExplanation": "Control changes to the QMS to avoid negative impacts.",
+    "requirementSummary": "Plan and control changes to the QMS.",
+    "parentClauseNumber": null,
+    "sortOrder": 12
+  },
+  {
+    "clauseNumber": "7.1.1",
+    "title": "Resources – general",
+    "plainEnglishExplanation": "Ensure adequate resources are available for the QMS.",
+    "requirementSummary": "Determine and provide resources needed for the QMS.",
+    "parentClauseNumber": null,
+    "sortOrder": 13
+  },
+  {
+    "clauseNumber": "7.1.2",
+    "title": "People",
+    "plainEnglishExplanation": "Ensure enough competent people are available.",
+    "requirementSummary": "Provide people necessary for process operation.",
+    "parentClauseNumber": null,
+    "sortOrder": 14
+  },
+  {
+    "clauseNumber": "7.1.3",
+    "title": "Infrastructure",
+    "plainEnglishExplanation": "Provide and maintain suitable facilities and equipment.",
+    "requirementSummary": "Provide and maintain infrastructure.",
+    "parentClauseNumber": null,
+    "sortOrder": 15
+  },
+  {
+    "clauseNumber": "7.1.4",
+    "title": "Environment for the operation of processes",
+    "plainEnglishExplanation": "Provide suitable working conditions.",
+    "requirementSummary": "Manage the environment needed for processes.",
+    "parentClauseNumber": null,
+    "sortOrder": 16
+  },
+  {
+    "clauseNumber": "7.1.5.1",
+    "title": "Monitoring and measuring resources – general",
+    "plainEnglishExplanation": "Ensure measuring equipment is suitable and maintained.",
+    "requirementSummary": "Provide monitoring and measuring resources.",
+    "parentClauseNumber": null,
+    "sortOrder": 17
+  },
+  {
+    "clauseNumber": "7.1.5.2",
+    "title": "Measurement traceability",
+    "plainEnglishExplanation": "Ensure measurements are traceable where required.",
+    "requirementSummary": "Ensure measurement traceability.",
+    "parentClauseNumber": null,
+    "sortOrder": 18
+  },
+  {
+    "clauseNumber": "7.1.6",
+    "title": "Organizational knowledge",
+    "plainEnglishExplanation": "Maintain knowledge needed to run processes.",
+    "requirementSummary": "Determine and maintain organisational knowledge.",
+    "parentClauseNumber": null,
+    "sortOrder": 19
+  },
+  {
+    "clauseNumber": "7.2",
+    "title": "Competence",
+    "plainEnglishExplanation": "Ensure people are competent for their roles.",
+    "requirementSummary": "Ensure competence through training or experience.",
+    "parentClauseNumber": null,
+    "sortOrder": 20
+  },
+  {
+    "clauseNumber": "7.3",
+    "title": "Awareness",
+    "plainEnglishExplanation": "Ensure people understand their role in quality.",
+    "requirementSummary": "Ensure awareness of QMS, policy and objectives.",
+    "parentClauseNumber": null,
+    "sortOrder": 21
+  },
+  {
+    "clauseNumber": "7.4",
+    "title": "Communication",
+    "plainEnglishExplanation": "Define what, when and how you communicate.",
+    "requirementSummary": "Determine internal and external communications.",
+    "parentClauseNumber": null,
+    "sortOrder": 22
+  },
+  {
+    "clauseNumber": "7.5.1",
+    "title": "Documented information – general",
+    "plainEnglishExplanation": "Maintain required QMS documentation.",
+    "requirementSummary": "Maintain documented information for the QMS.",
+    "parentClauseNumber": null,
+    "sortOrder": 23
+  },
+  {
+    "clauseNumber": "7.5.2",
+    "title": "Creating and updating documented information",
+    "plainEnglishExplanation": "Ensure documents are properly created and updated.",
+    "requirementSummary": "Ensure documented information is suitable and identified.",
+    "parentClauseNumber": null,
+    "sortOrder": 24
+  },
+  {
+    "clauseNumber": "7.5.3",
+    "title": "Control of documented information",
+    "plainEnglishExplanation": "Ensure documents are controlled and protected.",
+    "requirementSummary": "Control documented information.",
+    "parentClauseNumber": null,
+    "sortOrder": 25
+  },
+  {
+    "clauseNumber": "8.1",
+    "title": "Operational planning and control",
+    "plainEnglishExplanation": "Plan and control operations to meet requirements.",
+    "requirementSummary": "Plan, implement and control operational processes.",
+    "parentClauseNumber": null,
+    "sortOrder": 26
+  },
+  {
+    "clauseNumber": "8.2.1",
+    "title": "Customer communication",
+    "plainEnglishExplanation": "Communicate clearly with customers.",
+    "requirementSummary": "Establish arrangements for customer communication.",
+    "parentClauseNumber": null,
+    "sortOrder": 27
+  },
+  {
+    "clauseNumber": "8.2.2",
+    "title": "Determining requirements for products and services",
+    "plainEnglishExplanation": "Clearly understand customer and regulatory requirements.",
+    "requirementSummary": "Determine requirements for products and services.",
+    "parentClauseNumber": null,
+    "sortOrder": 28
+  },
+  {
+    "clauseNumber": "8.2.3",
+    "title": "Review of requirements for products and services",
+    "plainEnglishExplanation": "Confirm requirements before committing to supply.",
+    "requirementSummary": "Review requirements prior to acceptance.",
+    "parentClauseNumber": null,
+    "sortOrder": 29
+  },
+  {
+    "clauseNumber": "8.2.4",
+    "title": "Changes to requirements for products and services",
+    "plainEnglishExplanation": "Control changes to customer requirements.",
+    "requirementSummary": "Ensure changes are reviewed and communicated.",
+    "parentClauseNumber": null,
+    "sortOrder": 30
+  },
+  {
+    "clauseNumber": "8.3",
+    "title": "Design and development of products and services",
+    "plainEnglishExplanation": "Control design and development activities where applicable.",
+    "requirementSummary": "Establish a controlled design and development process.",
+    "parentClauseNumber": null,
+    "sortOrder": 31
+  },
+  {
+    "clauseNumber": "8.4.1",
+    "title": "Control of externally provided processes, products and services",
+    "plainEnglishExplanation": "Ensure suppliers meet requirements.",
+    "requirementSummary": "Control externally provided processes and products.",
+    "parentClauseNumber": null,
+    "sortOrder": 32
+  },
+  {
+    "clauseNumber": "8.4.2",
+    "title": "Type and extent of control",
+    "plainEnglishExplanation": "Apply supplier controls based on risk.",
+    "requirementSummary": "Determine type and extent of supplier control.",
+    "parentClauseNumber": null,
+    "sortOrder": 33
+  },
+  {
+    "clauseNumber": "8.4.3",
+    "title": "Information for external providers",
+    "plainEnglishExplanation": "Clearly communicate requirements to suppliers.",
+    "requirementSummary": "Provide requirements to external providers.",
+    "parentClauseNumber": null,
+    "sortOrder": 34
+  },
+  {
+    "clauseNumber": "8.5.1",
+    "title": "Control of production and service provision",
+    "plainEnglishExplanation": "Control how products and services are delivered.",
+    "requirementSummary": "Carry out production/service provision under controlled conditions.",
+    "parentClauseNumber": null,
+    "sortOrder": 35
+  },
+  {
+    "clauseNumber": "8.5.2",
+    "title": "Identification and traceability",
+    "plainEnglishExplanation": "Identify and trace outputs where required.",
+    "requirementSummary": "Ensure identification and traceability.",
+    "parentClauseNumber": null,
+    "sortOrder": 36
+  },
+  {
+    "clauseNumber": "8.5.3",
+    "title": "Property belonging to customers or external providers",
+    "plainEnglishExplanation": "Protect customer or supplier property.",
+    "requirementSummary": "Care for customer or supplier property.",
+    "parentClauseNumber": null,
+    "sortOrder": 37
+  },
+  {
+    "clauseNumber": "8.5.4",
+    "title": "Preservation",
+    "plainEnglishExplanation": "Protect products during processing and delivery.",
+    "requirementSummary": "Preserve outputs.",
+    "parentClauseNumber": null,
+    "sortOrder": 38
+  },
+  {
+    "clauseNumber": "8.5.5",
+    "title": "Post-delivery activities",
+    "plainEnglishExplanation": "Manage activities after delivery where required.",
+    "requirementSummary": "Meet post-delivery requirements.",
+    "parentClauseNumber": null,
+    "sortOrder": 39
+  },
+  {
+    "clauseNumber": "8.5.6",
+    "title": "Control of changes",
+    "plainEnglishExplanation": "Control changes during production or service delivery.",
+    "requirementSummary": "Review and control changes.",
+    "parentClauseNumber": null,
+    "sortOrder": 40
+  },
+  {
+    "clauseNumber": "8.6",
+    "title": "Release of products and services",
+    "plainEnglishExplanation": "Verify requirements are met before release.",
+    "requirementSummary": "Release outputs only after verification.",
+    "parentClauseNumber": null,
+    "sortOrder": 41
+  },
+  {
+    "clauseNumber": "8.7",
     "title": "Control of nonconforming outputs",
-    "description": "Ensure nonconforming outputs are identified and controlled.",
-    "sortOrder": 807
+    "plainEnglishExplanation": "Prevent use or delivery of nonconforming outputs.",
+    "requirementSummary": "Control nonconforming outputs.",
+    "parentClauseNumber": null,
+    "sortOrder": 42
   },
   {
-    "clauseCode": "9.2",
+    "clauseNumber": "9.1.1",
+    "title": "Monitoring, measurement, analysis and evaluation – general",
+    "plainEnglishExplanation": "Monitor and measure QMS performance.",
+    "requirementSummary": "Determine what needs monitoring and measurement.",
+    "parentClauseNumber": null,
+    "sortOrder": 43
+  },
+  {
+    "clauseNumber": "9.1.2",
+    "title": "Customer satisfaction",
+    "plainEnglishExplanation": "Monitor customer satisfaction.",
+    "requirementSummary": "Monitor customer perceptions.",
+    "parentClauseNumber": null,
+    "sortOrder": 44
+  },
+  {
+    "clauseNumber": "9.1.3",
+    "title": "Analysis and evaluation",
+    "plainEnglishExplanation": "Analyse data to evaluate QMS effectiveness.",
+    "requirementSummary": "Analyse and evaluate performance data.",
+    "parentClauseNumber": null,
+    "sortOrder": 45
+  },
+  {
+    "clauseNumber": "9.2",
     "title": "Internal audit",
-    "description": "Conduct internal audits at planned intervals to provide QMS conformity information.",
-    "sortOrder": 902
+    "plainEnglishExplanation": "Audit the QMS to ensure it works as intended.",
+    "requirementSummary": "Plan and conduct internal audits.",
+    "parentClauseNumber": null,
+    "sortOrder": 46
   },
   {
-    "clauseCode": "10.2",
+    "clauseNumber": "9.3",
+    "title": "Management review",
+    "plainEnglishExplanation": "Top management must review QMS performance.",
+    "requirementSummary": "Review QMS suitability and effectiveness.",
+    "parentClauseNumber": null,
+    "sortOrder": 47
+  },
+  {
+    "clauseNumber": "10.1",
+    "title": "General improvement",
+    "plainEnglishExplanation": "Identify and implement improvement opportunities.",
+    "requirementSummary": "Determine and select opportunities for improvement.",
+    "parentClauseNumber": null,
+    "sortOrder": 48
+  },
+  {
+    "clauseNumber": "10.2",
     "title": "Nonconformity and corrective action",
-    "description": "React to nonconformities and implement corrective actions to prevent recurrence.",
-    "sortOrder": 1002
+    "plainEnglishExplanation": "Fix problems and prevent them recurring.",
+    "requirementSummary": "Manage nonconformities and corrective actions.",
+    "parentClauseNumber": null,
+    "sortOrder": 49
+  },
+  {
+    "clauseNumber": "10.3",
+    "title": "Continual improvement",
+    "plainEnglishExplanation": "Continually improve the QMS.",
+    "requirementSummary": "Continually improve QMS effectiveness.",
+    "parentClauseNumber": null,
+    "sortOrder": 50
   }
 ]
