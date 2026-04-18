@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 import { hasPermission, requireAuth } from "@/src/lib/auth";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { resolveCommentAuthorName } from "@/lib/comments";
 import { prisma } from "@/lib/prisma";
 
 import { ClauseRecordForm } from "./_components/clause-record-form";
+import { ComplianceComments } from "./_components/compliance-comments";
 import { ensureClauseRecordForPage } from "./actions";
 
 function formatDate(value?: Date | null) {
@@ -81,6 +83,7 @@ export default async function ClauseDetailPage({
 }) {
   const { role } = await requireAuth({ permission: "read_compliance" });
   const canEdit = role ? hasPermission(role, "edit_compliance") : false;
+  const canComment = role ? hasPermission(role, "edit_comments") : false;
 
   const { clauseId } = await params;
 
@@ -114,9 +117,8 @@ export default async function ClauseDetailPage({
           },
           comments: {
             orderBy: {
-              updatedAt: "desc",
+              createdAt: "desc",
             },
-            take: 5,
             include: {
               author: {
                 select: {
@@ -246,23 +248,20 @@ export default async function ClauseDetailPage({
           <h2 className="text-lg font-semibold">Related items</h2>
 
           <div className="grid gap-4 md:grid-cols-3">
-            <article className="rounded-md border bg-background/50 p-4">
-              <h3 className="text-sm font-semibold">Comments</h3>
-              <ul className="mt-3 space-y-3 text-sm">
-                {(latestRecord?.comments.length ?? 0) === 0 ? (
-                  <li className="text-muted-foreground">No comments yet.</li>
-                ) : (
-                  latestRecord?.comments.map((comment) => (
-                    <li className="space-y-1" key={comment.id}>
-                      <p>{comment.body}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {comment.author?.fullName ?? comment.author?.email ?? "Unknown"} · {formatDate(comment.updatedAt)}
-                      </p>
-                    </li>
-                  ))
-                )}
-              </ul>
-            </article>
+            <ComplianceComments
+              canEdit={canComment}
+              clauseId={clauseId}
+              comments={
+                latestRecord?.comments.map((comment) => ({
+                  id: comment.id,
+                  body: comment.body,
+                  createdAt: comment.createdAt,
+                  updatedAt: comment.updatedAt,
+                  authorName: resolveCommentAuthorName(comment.author),
+                })) ?? []
+              }
+              complianceRecordId={latestRecord?.id ?? null}
+            />
 
             <article className="rounded-md border bg-background/50 p-4">
               <h3 className="text-sm font-semibold">Linked actions</h3>

@@ -4,6 +4,7 @@ import { AuditActionType, ComplianceStatus, EntityType, Prisma } from "@prisma/c
 import { revalidatePath } from "next/cache";
 
 import { buildComplianceRecordFieldChanges, createAuditLogs } from "@/lib/audit";
+import { validatePlainTextComment } from "@/lib/comments";
 import { prisma } from "@/lib/prisma";
 import { hasPermission, requireAuth } from "@/src/lib/auth";
 
@@ -22,6 +23,18 @@ export type ClauseRecordFormState = {
 };
 
 export const initialClauseRecordFormState: ClauseRecordFormState = {
+  status: "idle",
+};
+
+export type CommentFormState = {
+  status: "idle" | "success" | "error";
+  message?: string;
+  fieldErrors?: {
+    commentBody?: string;
+  };
+};
+
+export const initialCommentFormState: CommentFormState = {
   status: "idle",
 };
 
@@ -299,6 +312,68 @@ export async function saveClauseRecordAction(
     const message = error instanceof Prisma.PrismaClientKnownRequestError
       ? "Could not save changes due to a database constraint."
       : "An unexpected error occurred while saving. Please try again.";
+
+    return {
+      status: "error",
+      message,
+    };
+  }
+}
+
+export async function addComplianceRecordCommentAction(
+  _previousState: CommentFormState,
+  formData: FormData,
+): Promise<CommentFormState> {
+  const { profile, role } = await requireAuth({ permission: "read_compliance" });
+
+  if (!role || !hasPermission(role, "edit_comments")) {
+    return {
+      status: "error",
+      message: "You have read-only access and cannot add comments.",
+    };
+  }
+
+  const clauseId = String(formData.get("clauseId") ?? "").trim();
+  const complianceRecordId = String(formData.get("complianceRecordId") ?? "").trim();
+  const commentBody = String(formData.get("commentBody") ?? "").trim();
+
+  if (!clauseId || !complianceRecordId) {
+    return {
+      status: "error",
+      message: "The page is missing a required record identifier. Refresh and try again.",
+    };
+  }
+
+  const commentError = validatePlainTextComment(commentBody);
+  if (commentError) {
+    return {
+      status: "error",
+      message: "Please resolve the validation errors and try again.",
+      fieldErrors: {
+        commentBody: commentError,
+      },
+    };
+  }
+
+  try {
+    await prisma.comment.create({
+      data: {
+        complianceRecordId,
+        authorProfileId: profile?.id ?? null,
+        body: commentBody,
+      },
+    });
+
+    revalidatePath(`/clauses/${clauseId}`);
+
+    return {
+      status: "success",
+      message: "Comment added.",
+    };
+  } catch (error) {
+    const message = error instanceof Prisma.PrismaClientKnownRequestError
+      ? "Could not save your comment due to a database constraint."
+      : "An unexpected error occurred while adding your comment. Please try again.";
 
     return {
       status: "error",
