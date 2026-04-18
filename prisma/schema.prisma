@@ -90,17 +90,22 @@ model Site {
 }
 
 model IsoClause {
-  id          String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  clauseCode  String             @unique
-  title       String
-  description String?
-  sortOrder   Int?
-  isActive    Boolean            @default(true)
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
+  id                      String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clauseNumber            String             @unique
+  title                   String
+  plainEnglishExplanation String?
+  requirementSummary      String?
+  parentClauseId          String?            @db.Uuid
+  sortOrder               Int?
+  isActive                Boolean            @default(true)
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
 
-  complianceRecords ComplianceRecord[]
+  parentClause            IsoClause?         @relation("IsoClauseHierarchy", fields: [parentClauseId], references: [id], onDelete: SetNull)
+  subclauses              IsoClause[]        @relation("IsoClauseHierarchy")
+  complianceRecords       ComplianceRecord[]
 
+  @@index([parentClauseId])
   @@index([sortOrder])
 }
 
@@ -226,16 +231,4 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([changedByProfileId])
   @@index([changedAt])
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-model ComplianceAction {
-  id          String   @id @default(cuid())
-  title       String
-  status      String   @default("open")
-  owner       String?
-  dueDate     DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }

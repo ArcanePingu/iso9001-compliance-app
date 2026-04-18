@@ -1,5 +1,5 @@
 import { PrismaClient, RoleCode } from '@prisma/client';
-import isoClauses from './seed/iso-clauses.json';
+import { importIsoClauses } from './import-iso-clauses';
 
 const prisma = new PrismaClient();
 
@@ -33,26 +33,9 @@ async function main() {
     });
   }
 
-  for (const clause of isoClauses) {
-    await prisma.isoClause.upsert({
-      where: { clauseCode: clause.clauseCode },
-      update: {
-        title: clause.title,
-        description: clause.description,
-        sortOrder: clause.sortOrder,
-        isActive: true
-      },
-      create: {
-        clauseCode: clause.clauseCode,
-        title: clause.title,
-        description: clause.description,
-        sortOrder: clause.sortOrder,
-        isActive: true
-      }
-    });
-  }
+  const importedClauseCount = await importIsoClauses(prisma, 'prisma/seed/iso-clauses.json');
 
-  console.log(`Seeded ${roles.length} roles and ${isoClauses.length} ISO clauses.`);
+  console.log(`Seeded ${roles.length} roles and ${importedClauseCount} ISO clauses.`);
 }
 
 main()

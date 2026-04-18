@@ -1,0 +1,18 @@
+[
+  {
+    "clauseNumber": "4",
+    "title": "Context of the organization",
+    "plainEnglishExplanation": "High-level context requirements.",
+    "requirementSummary": "Determine context affecting the QMS.",
+    "parentClauseNumber": null,
+    "sortOrder": 1
+  },
+  {
+    "clauseNumber": "4.1",
+    "title": "Understanding the organization and its context",
+    "plainEnglishExplanation": "Understand internal and external issues.",
+    "requirementSummary": "Determine internal and external issues relevant to strategic direction.",
+    "parentClauseNumber": "4",
+    "sortOrder": 2
+  }
+]

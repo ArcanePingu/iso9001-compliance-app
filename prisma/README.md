@@ -9,9 +9,10 @@ Set these before running Prisma commands:
 
 ## Migration
 
-Initial migration is checked in at:
+Migrations are checked in at:
 
 - `prisma/migrations/20260418160000_init/migration.sql`
+- `prisma/migrations/20260418183000_iso_clause_library_import/migration.sql`
 
 Apply with:
 
@@ -19,18 +20,59 @@ Apply with:
 npx prisma migrate deploy
 ```
 
-## Seed strategy
+## ISO clause reference dataset location
 
-This app treats role and ISO clause reference data as seed-managed metadata.
+Store your canonical ISO clause JSON dataset at:
 
-- `prisma/seed.ts` upserts immutable role records (`ADMIN`, `STAFF`, `VIEWER`).
-- `prisma/seed/iso-clauses.json` stores ISO clause starter data.
-- The seed script upserts by stable keys (`Role.code`, `IsoClause.clauseCode`) so re-runs are safe.
+- `prisma/seed/iso-clauses.json`
 
-Run seed:
+A minimal sample/template is provided at:
 
-```bash
-npm run prisma:seed
+- `prisma/seed/iso-clauses.sample.json`
+
+The import format is:
+
+```json
+[
+  {
+    "clauseNumber": "4.1",
+    "title": "Understanding the organization and its context",
+    "plainEnglishExplanation": "Simple plain-English guidance",
+    "requirementSummary": "Short formal requirement summary",
+    "parentClauseNumber": null,
+    "sortOrder": 1
+  }
+]
 ```
 
-You can replace `prisma/seed/iso-clauses.json` with your full ISO 9001 clause catalog when ready.
+## Seed and import strategy
+
+This app treats role and ISO clause data as **reference metadata**.
+Business compliance records remain in `ComplianceRecord` and link to `IsoClause` by `isoClauseId`.
+
+- `prisma/seed.ts` upserts immutable role records (`ADMIN`, `STAFF`, `VIEWER`).
+- `prisma/import-iso-clauses.ts` imports ISO clauses from JSON.
+- `prisma/seed/iso-clauses.json` is the reference clause dataset.
+- The importer is idempotent and safe to re-run:
+  - upserts by stable key `IsoClause.clauseNumber`
+  - updates mutable text/order fields
+  - applies `parentClauseId` in a second pass using `parentClauseNumber`
+
+## How to run import
+
+Use either approach:
+
+```bash
+# Full seed: roles + ISO clause library
+npx tsx prisma/seed.ts
+
+# ISO clause library only (optionally pass a different JSON file)
+npx tsx prisma/import-iso-clauses.ts prisma/seed/iso-clauses.json
+```
+
+## Replacing with spreadsheet-derived data
+
+1. Convert your spreadsheet to the JSON shape above.
+2. Save it to `prisma/seed/iso-clauses.json`.
+3. Run `npx tsx prisma/import-iso-clauses.ts prisma/seed/iso-clauses.json`.
+4. Re-run anytime; existing clauses are updated, new clauses are inserted.
