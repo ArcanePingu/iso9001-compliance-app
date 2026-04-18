@@ -1,0 +1,50 @@
+[
+  {
+    "clauseCode": "4.1",
+    "title": "Understanding the organization and its context",
+    "description": "Determine external and internal issues relevant to purpose and strategic direction.",
+    "sortOrder": 401
+  },
+  {
+    "clauseCode": "4.2",
+    "title": "Understanding the needs and expectations of interested parties",
+    "description": "Identify interested parties and their requirements relevant to the QMS.",
+    "sortOrder": 402
+  },
+  {
+    "clauseCode": "5.1",
+    "title": "Leadership and commitment",
+    "description": "Top management demonstrates leadership and commitment to the QMS.",
+    "sortOrder": 501
+  },
+  {
+    "clauseCode": "6.1",
+    "title": "Actions to address risks and opportunities",
+    "description": "Plan actions to address risks and opportunities and integrate into QMS processes.",
+    "sortOrder": 601
+  },
+  {
+    "clauseCode": "7.5",
+    "title": "Documented information",
+    "description": "Control and maintain documented information required by the QMS and ISO 9001.",
+    "sortOrder": 705
+  },
+  {
+    "clauseCode": "8.7",
+    "title": "Control of nonconforming outputs",
+    "description": "Ensure nonconforming outputs are identified and controlled.",
+    "sortOrder": 807
+  },
+  {
+    "clauseCode": "9.2",
+    "title": "Internal audit",
+    "description": "Conduct internal audits at planned intervals to provide QMS conformity information.",
+    "sortOrder": 902
+  },
+  {
+    "clauseCode": "10.2",
+    "title": "Nonconformity and corrective action",
+    "description": "React to nonconformities and implement corrective actions to prevent recurrence.",
+    "sortOrder": 1002
+  }
+]
