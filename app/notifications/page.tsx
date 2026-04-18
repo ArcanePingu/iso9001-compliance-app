@@ -1,8 +1,8 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { syncUserNotifications } from "@/lib/notifications";
-import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/src/lib/auth";
+import { requireAuth } from "@/lib/auth";
+import { getNotificationsForProfile } from "@/lib/queries/notifications";
 
 import { markAllNotificationsReadAction, markNotificationReadAction } from "./actions";
 
@@ -22,17 +22,7 @@ export default async function NotificationsPage() {
 
   await syncUserNotifications(profile.id);
 
-  const notifications = await prisma.notification.findMany({
-    where: {
-      recipientProfileId: profile.id,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 100,
-  });
-
-  const unreadCount = notifications.filter((item) => !item.isRead).length;
+  const { notifications, unreadCount } = await getNotificationsForProfile(profile.id);
 
   return (
     <AppShell>

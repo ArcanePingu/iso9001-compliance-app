@@ -1,7 +1,7 @@
-import { prisma } from "@/lib/prisma";
 import { StatusMessage } from "@/components/ui/status-message";
 
 import { AdminNav } from "@/components/admin/admin-nav";
+import { getAdminUsersPageData } from "@/lib/queries/admin-users";
 
 import { updateUserRoleAction, updateUserStatusAction } from "../actions";
 
@@ -21,25 +21,7 @@ export default async function AdminUsersPage({
   const status = typeof params.status === "string" ? params.status : null;
   const message = typeof params.message === "string" ? params.message : null;
 
-  const [roles, users] = await Promise.all([
-    prisma.role.findMany({
-      orderBy: { id: "asc" },
-      select: { id: true, code: true, name: true },
-    }),
-    prisma.profile.findMany({
-      include: {
-        role: {
-          select: {
-            id: true,
-            name: true,
-            code: true,
-          },
-        },
-      },
-      orderBy: [{ isActive: "desc" }, { fullName: "asc" }],
-      take: 300,
-    }),
-  ]);
+  const [roles, users] = await getAdminUsersPageData();
 
   return (
     <section className="space-y-6 rounded-lg border bg-card p-6 shadow-panel">

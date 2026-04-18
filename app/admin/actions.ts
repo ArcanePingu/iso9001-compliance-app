@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { createAuditLogs } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { normalizeOptionalText, normalizeText, parseBooleanInput, parseIntegerInput, parseUuidInput } from "@/lib/validation";
-import { requireAuth } from "@/src/lib/auth";
+import { requireAuth } from "@/lib/auth";
 
 function buildSearchTarget(pathname: string, status: "success" | "error", message: string) {
   const params = new URLSearchParams({

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { markAllNotificationsAsRead, markNotificationAsRead } from "@/lib/notifications";
 import { parseUuidInput } from "@/lib/validation";
-import { requireAuth } from "@/src/lib/auth";
+import { requireAuth } from "@/lib/auth";
 
 export async function markNotificationReadAction(formData: FormData) {
   const { profile } = await requireAuth({ permission: "read_compliance" });

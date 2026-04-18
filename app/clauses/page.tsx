@@ -3,7 +3,7 @@ import { ComplianceStatus } from "@prisma/client";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { getClauseListData } from "@/lib/queries/clauses";
-import { requireAuth } from "@/src/lib/auth";
+import { requireAuth } from "@/lib/auth";
 import type { ClauseListFilters } from "@/types/clauses";
 
 const STATUS_LABELS: Record<string, string> = {
