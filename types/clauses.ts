@@ -9,7 +9,7 @@ export type ClauseListFilters = {
 
 export type ClauseListItem = {
   id: string;
-  clauseCode: string;
+  clauseNumber: string;
   title: string;
   status: ComplianceStatus | "NO_RECORD";
   ownerName: string;
