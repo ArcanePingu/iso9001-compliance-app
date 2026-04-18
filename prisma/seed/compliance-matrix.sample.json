@@ -1,0 +1,15 @@
+[
+  {
+    "ISO Clause": "4.1",
+    "Clause Title": "Understanding the organization and its context",
+    "Plain English Explanation": "Determine internal/external factors that affect quality goals.",
+    "Requirement Summary": "The organization shall determine external and internal issues.",
+    "Relevant Process(es)": "Annual strategic planning; risk review",
+    "How Process Meets Requirement": "Leadership reviews market/regulatory changes each quarter.",
+    "Evidence / Records": "https://example.com/records/strategy-review-q1",
+    "Status": "IN_PROGRESS",
+    "Gap / Action Needed": "Formalize risk scoring worksheet.",
+    "Owner": "Quality Manager",
+    "Target Date": "2026-06-30"
+  }
+]
