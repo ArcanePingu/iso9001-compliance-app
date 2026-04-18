@@ -3,7 +3,7 @@ import { ActionStatus } from "@prisma/client";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { getActionListData } from "@/lib/queries/actions";
-import { requireAuth } from "@/src/lib/auth";
+import { requireAuth } from "@/lib/auth";
 import type { ActionListFilters } from "@/types/actions";
 
 const STATUS_LABELS: Record<string, string> = {

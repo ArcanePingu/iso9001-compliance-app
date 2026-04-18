@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { StatusMessage } from "@/components/ui/status-message";
 
 import {
   addComplianceRecordCommentAction,
@@ -37,17 +38,7 @@ function CommentStatusMessage({ state }: { state: CommentFormState }) {
     return null;
   }
 
-  return (
-    <p
-      className={`rounded-md border px-3 py-2 text-sm ${
-        state.status === "success"
-          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-          : "border-red-200 bg-red-50 text-red-700"
-      }`}
-    >
-      {state.message}
-    </p>
-  );
+  return <StatusMessage message={state.message} status={state.status === "success" ? "success" : "error"} />;
 }
 
 export function ComplianceComments({ clauseId, complianceRecordId, canEdit, comments }: ComplianceCommentsProps) {

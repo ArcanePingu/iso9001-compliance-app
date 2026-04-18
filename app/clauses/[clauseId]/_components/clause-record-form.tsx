@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import type { ComplianceStatus } from "@prisma/client";
 
 import { Button } from "@/components/ui/button";
+import { StatusMessage } from "@/components/ui/status-message";
 import {
   initialClauseRecordFormState,
   saveClauseRecordAction,
@@ -54,17 +55,9 @@ export function ClauseRecordForm({ clauseId, canEdit, defaults, owners, sites }:
         )}
       </div>
 
-      {state.message && (
-        <p
-          className={`rounded-md border px-3 py-2 text-sm ${
-            state.status === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-red-200 bg-red-50 text-red-700"
-          }`}
-        >
-          {state.message}
-        </p>
-      )}
+      {state.message ? (
+        <StatusMessage message={state.message} status={state.status === "success" ? "success" : "error"} />
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-2">
         <div>

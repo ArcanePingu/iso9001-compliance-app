@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { hasPermission, requireAuth } from "@/src/lib/auth";
+import { hasPermission, requireAuth } from "@/lib/auth";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { resolveCommentAuthorName } from "@/lib/comments";

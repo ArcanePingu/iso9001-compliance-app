@@ -5,7 +5,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { syncUserNotifications } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/src/lib/auth";
+import { requireAuth } from "@/lib/auth";
 
 export async function TopHeader() {
   const { profile } = await requireAuth({ permission: "read_compliance" });

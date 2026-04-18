@@ -12,7 +12,7 @@ import {
 } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 import { dedupeStrings, normalizeText, parseEnumInput, parseUuidInput } from "@/lib/validation";
-import { hasPermission, requireAuth } from "@/src/lib/auth";
+import { hasPermission, requireAuth } from "@/lib/auth";
 
 type ComplianceDetailsPayload = {
   reviewDate: string | null;
