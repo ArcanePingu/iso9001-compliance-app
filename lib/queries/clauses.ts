@@ -1,14 +1,7 @@
-import {
-  ComplianceStatus,
-  Prisma,
-} from "@prisma/client";
+import { ComplianceStatus, Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
-import type {
-  ClauseListFilters,
-  ClauseListItem,
-  ClauseListResult,
-} from "@/types/clauses";
+import type { ClauseListFilters, ClauseListItem, ClauseListResult } from "@/types/clauses";
 
 const OPEN_ACTION_STATUSES = ["OPEN", "IN_PROGRESS", "BLOCKED"] as const;
 
@@ -18,72 +11,85 @@ function normalizeQuery(filters: ClauseListFilters) {
 
 function toClauseWhereInput(filters: ClauseListFilters): Prisma.IsoClauseWhereInput {
   const query = normalizeQuery(filters);
-
-  const where: Prisma.IsoClauseWhereInput = {
-    isActive: true,
-  };
+  const and: Prisma.IsoClauseWhereInput[] = [{ isActive: true }];
 
   if (query.length > 0) {
-    where.OR = [
-      { clauseCode: { contains: query, mode: "insensitive" } },
-      { title: { contains: query, mode: "insensitive" } },
-      { description: { contains: query, mode: "insensitive" } },
-      {
-        complianceRecords: {
-          some: {
-            OR: [
-              { title: { contains: query, mode: "insensitive" } },
-              { details: { contains: query, mode: "insensitive" } },
-              {
-                createdBy: {
-                  OR: [
-                    { fullName: { contains: query, mode: "insensitive" } },
-                    { email: { contains: query, mode: "insensitive" } },
-                  ],
+    and.push({
+      OR: [
+        { clauseNumber: { contains: query, mode: "insensitive" } },
+        { title: { contains: query, mode: "insensitive" } },
+        { plainEnglishExplanation: { contains: query, mode: "insensitive" } },
+        { requirementSummary: { contains: query, mode: "insensitive" } },
+        {
+          complianceRecords: {
+            some: {
+              OR: [
+                { title: { contains: query, mode: "insensitive" } },
+                { details: { contains: query, mode: "insensitive" } },
+                { evidenceUrl: { contains: query, mode: "insensitive" } },
+                {
+                  createdBy: {
+                    OR: [
+                      { fullName: { contains: query, mode: "insensitive" } },
+                      { email: { contains: query, mode: "insensitive" } },
+                    ],
+                  },
                 },
-              },
-            ],
+                {
+                  sites: {
+                    some: {
+                      site: {
+                        OR: [
+                          { name: { contains: query, mode: "insensitive" } },
+                          { code: { contains: query, mode: "insensitive" } },
+                        ],
+                      },
+                    },
+                  },
+                },
+              ],
+            },
           },
         },
-      },
-    ];
+      ],
+    });
   }
 
   if (filters.status && filters.status !== "ALL") {
-    where.complianceRecords = {
-      ...(where.complianceRecords ?? {}),
-      some: {
-        ...((where.complianceRecords as Prisma.ComplianceRecordListRelationFilter | undefined)?.some ?? {}),
-        status: filters.status,
+    and.push({
+      complianceRecords: {
+        some: {
+          status: filters.status,
+        },
       },
-    };
+    });
   }
 
   if (filters.siteId && filters.siteId !== "ALL") {
-    where.complianceRecords = {
-      ...(where.complianceRecords ?? {}),
-      some: {
-        ...((where.complianceRecords as Prisma.ComplianceRecordListRelationFilter | undefined)?.some ?? {}),
-        sites: {
-          some: {
-            siteId: filters.siteId,
+    and.push({
+      complianceRecords: {
+        some: {
+          sites: {
+            some: {
+              siteId: filters.siteId,
+            },
           },
         },
       },
-    };
+    });
   }
 
   if (filters.ownerId && filters.ownerId !== "ALL") {
-    where.complianceRecords = {
-      ...(where.complianceRecords ?? {}),
-      some: {
-        ...((where.complianceRecords as Prisma.ComplianceRecordListRelationFilter | undefined)?.some ?? {}),
-        createdByProfileId: filters.ownerId,
+    and.push({
+      complianceRecords: {
+        some: {
+          createdByProfileId: filters.ownerId,
+        },
       },
-    };
+    });
   }
 
-  return where;
+  return and.length === 1 ? and[0] : { AND: and };
 }
 
 type ClauseWithRecords = Prisma.IsoClauseGetPayload<{
@@ -137,7 +143,7 @@ function mapClauseToListItem(clause: ClauseWithRecords): ClauseListItem {
 
   return {
     id: clause.id,
-    clauseCode: clause.clauseCode,
+    clauseNumber: clause.clauseNumber,
     title: clause.title,
     status: latestRecord?.status ?? "NO_RECORD",
     ownerName: latestRecord?.createdBy?.fullName ?? latestRecord?.createdBy?.email ?? "Unassigned",
@@ -153,7 +159,7 @@ export async function getClauseListData(filters: ClauseListFilters): Promise<Cla
   const [clauses, sites, owners] = await Promise.all([
     prisma.isoClause.findMany({
       where,
-      orderBy: [{ sortOrder: "asc" }, { clauseCode: "asc" }],
+      orderBy: [{ sortOrder: "asc" }, { clauseNumber: "asc" }],
       include: {
         complianceRecords: {
           orderBy: {

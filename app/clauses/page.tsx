@@ -81,7 +81,7 @@ export default async function ClausesPage({
               defaultValue={filters.query ?? ""}
               id="query"
               name="query"
-              placeholder="Clause, title, keyword, owner"
+              placeholder="Clause #, title, keyword, process, evidence, site, owner"
               type="text"
             />
           </div>
@@ -164,7 +164,7 @@ export default async function ClausesPage({
                   <tr className="hover:bg-muted/40" key={clause.id}>
                     <td className="px-4 py-3 font-medium text-foreground">
                       <Link className="underline-offset-4 hover:underline" href={`/clauses/${clause.id}`}>
-                        {clause.clauseCode}
+                        {clause.clauseNumber}
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-foreground">{clause.title}</td>
