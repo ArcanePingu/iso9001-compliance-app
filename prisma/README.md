@@ -70,6 +70,33 @@ npx tsx prisma/seed.ts
 npx tsx prisma/import-iso-clauses.ts prisma/seed/iso-clauses.json
 ```
 
+
+## Compliance matrix import utility
+
+When you export your ISO 9001 matrix from a spreadsheet, use:
+
+```bash
+npx tsx prisma/import-compliance-matrix.ts <path-to-matrix.json-or-csv>
+```
+
+Accepted source columns:
+
+- ISO Clause
+- Clause Title
+- Plain English Explanation
+- Requirement Summary
+- Relevant Process(es)
+- How Process Meets Requirement
+- Evidence / Records
+- Status
+- Gap / Action Needed
+- Owner
+- Target Date
+
+Mapping details are documented in `docs/compliance-matrix-import-mapping.md`.
+
+A starter template is available at `prisma/seed/compliance-matrix.sample.json`.
+
 ## Replacing with spreadsheet-derived data
 
 1. Convert your spreadsheet to the JSON shape above.
