@@ -11,6 +11,7 @@ import {
   createComplianceRecordUpdatedNotifications,
 } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
+import { dedupeStrings, normalizeText, parseEnumInput, parseUuidInput } from "@/lib/validation";
 import { hasPermission, requireAuth } from "@/src/lib/auth";
 
 type ComplianceDetailsPayload = {
@@ -146,7 +147,7 @@ export async function saveClauseRecordAction(
     };
   }
 
-  const clauseId = String(formData.get("clauseId") ?? "").trim();
+  const clauseId = parseUuidInput(formData.get("clauseId"));
   if (!clauseId) {
     return {
       status: "error",
@@ -154,20 +155,37 @@ export async function saveClauseRecordAction(
     };
   }
 
-  const status = String(formData.get("status") ?? "").trim();
-  const ownerId = String(formData.get("ownerId") ?? "").trim();
+  const status = parseEnumInput(formData.get("status"), Object.values(ComplianceStatus));
+  const ownerId = parseUuidInput(formData.get("ownerId"));
   const targetDate = parseDateInput(formData.get("targetDate"));
   const reviewDateRaw = parseDateInput(formData.get("reviewDate"));
-  const linkedSiteIds = formData.getAll("linkedSiteIds").map((value) => String(value));
-  const processProcedures = String(formData.get("processProcedures") ?? "").trim();
-  const processMeetsRequirement = String(formData.get("processMeetsRequirement") ?? "").trim();
-  const evidencePaths = String(formData.get("evidencePaths") ?? "").trim();
-  const gapActionNeeded = String(formData.get("gapActionNeeded") ?? "").trim();
+  const linkedSiteIds = dedupeStrings(
+    formData
+      .getAll("linkedSiteIds")
+      .map((value) => parseUuidInput(value))
+      .filter((value): value is string => Boolean(value)),
+  );
+  const processProcedures = normalizeText(formData.get("processProcedures"));
+  const processMeetsRequirement = normalizeText(formData.get("processMeetsRequirement"));
+  const evidencePaths = normalizeText(formData.get("evidencePaths"));
+  const gapActionNeeded = normalizeText(formData.get("gapActionNeeded"));
 
   const fieldErrors: Record<string, string> = {};
 
-  if (!(Object.values(ComplianceStatus) as string[]).includes(status)) {
+  if (!status) {
     fieldErrors.status = "Select a valid status.";
+  }
+  if (processProcedures.length > 4000) {
+    fieldErrors.processProcedures = "Relevant processes/procedures must be 4000 characters or fewer.";
+  }
+  if (processMeetsRequirement.length > 4000) {
+    fieldErrors.processMeetsRequirement = "This field must be 4000 characters or fewer.";
+  }
+  if (evidencePaths.length > 4000) {
+    fieldErrors.evidencePaths = "Evidence links/paths must be 4000 characters or fewer.";
+  }
+  if (gapActionNeeded.length > 4000) {
+    fieldErrors.gapActionNeeded = "Gap/action details must be 4000 characters or fewer.";
   }
 
   if (!processProcedures) {
@@ -221,6 +239,26 @@ export async function saveClauseRecordAction(
       if (!clause) {
         throw new Error("Clause not found.");
       }
+      if (ownerId) {
+        const owner = await tx.profile.findUnique({
+          where: { id: ownerId },
+          select: { id: true, isActive: true },
+        });
+        if (!owner || !owner.isActive) {
+          throw new Error("Assigned owner must be an active user.");
+        }
+      }
+      if (linkedSiteIds.length > 0) {
+        const activeSiteCount = await tx.site.count({
+          where: {
+            id: { in: linkedSiteIds },
+            isActive: true,
+          },
+        });
+        if (activeSiteCount !== linkedSiteIds.length) {
+          throw new Error("Linked sites must all be active.");
+        }
+      }
 
       const latestRecord = clause.complianceRecords[0];
       const previousDetails = parseComplianceDetails(latestRecord?.details ?? null);
@@ -237,7 +275,7 @@ export async function saveClauseRecordAction(
         ? await tx.complianceRecord.update({
             where: { id: latestRecord.id },
             data: {
-              status: status as ComplianceStatus,
+              status,
               createdByProfileId: ownerId || profile?.id || null,
               dueDate: targetDate,
               evidenceUrl: evidencePaths || null, // Backward-compatible mirror field.
@@ -250,7 +288,7 @@ export async function saveClauseRecordAction(
             data: {
               isoClauseId: clause.id,
               title: `Clause ${clause.clauseNumber} compliance record`,
-              status: status as ComplianceStatus,
+              status,
               createdByProfileId: ownerId || profile?.id || null,
               dueDate: targetDate,
               evidenceUrl: evidencePaths || null,
@@ -274,7 +312,7 @@ export async function saveClauseRecordAction(
         : null;
 
       const nextSnapshot = {
-        status: status as ComplianceStatus,
+        status,
         ownerId: ownerId || profile?.id || null,
         targetDate,
         reviewDate: mergedDetails.reviewDate,
@@ -355,9 +393,9 @@ export async function addComplianceRecordCommentAction(
     };
   }
 
-  const clauseId = String(formData.get("clauseId") ?? "").trim();
-  const complianceRecordId = String(formData.get("complianceRecordId") ?? "").trim();
-  const commentBody = String(formData.get("commentBody") ?? "").trim();
+  const clauseId = parseUuidInput(formData.get("clauseId"));
+  const complianceRecordId = parseUuidInput(formData.get("complianceRecordId"));
+  const commentBody = normalizeText(formData.get("commentBody"));
 
   if (!clauseId || !complianceRecordId) {
     return {
@@ -379,6 +417,17 @@ export async function addComplianceRecordCommentAction(
 
   try {
     await prisma.$transaction(async (tx) => {
+      const recordExists = await tx.complianceRecord.findFirst({
+        where: {
+          id: complianceRecordId,
+          isoClauseId: clauseId,
+        },
+        select: { id: true },
+      });
+      if (!recordExists) {
+        throw new Error("The selected compliance record is invalid for this clause.");
+      }
+
       const comment = await tx.comment.create({
         data: {
           complianceRecordId,
@@ -399,12 +448,12 @@ export async function addComplianceRecordCommentAction(
         })
       );
 
-      const recipientUserIds = [
+      const recipientUserIds = dedupeStrings([
         recipients?.createdByProfileId ?? null,
         ...(recipients?.comments.map((entry) => entry.authorProfileId ?? null) ?? []),
       ]
         .filter((id): id is string => Boolean(id))
-        .filter((id) => id !== (profile?.id ?? ""));
+        .filter((id) => id !== (profile?.id ?? "")));
 
       await createCommentAddedNotifications(tx, {
         recipientUserIds,

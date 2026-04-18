@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { ComplianceStatus } from "@prisma/client";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { getClauseListData } from "@/lib/queries/clauses";
+import { requireAuth } from "@/src/lib/auth";
 import type { ClauseListFilters } from "@/types/clauses";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -42,16 +44,27 @@ function getFilterValue(value?: string) {
   return value;
 }
 
+function parseStatusFilter(value: string | string[] | undefined): ClauseListFilters["status"] {
+  if (typeof value !== "string" || value === "ALL") {
+    return "ALL";
+  }
+
+  return Object.values(ComplianceStatus).includes(value as ComplianceStatus)
+    ? (value as ComplianceStatus)
+    : "ALL";
+}
+
 export default async function ClausesPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await requireAuth({ permission: "read_compliance" });
   const params = await searchParams;
 
   const filters: ClauseListFilters = {
     query: typeof params.query === "string" ? params.query : undefined,
-    status: typeof params.status === "string" ? (params.status as ClauseListFilters["status"]) : "ALL",
+    status: parseStatusFilter(params.status),
     siteId: typeof params.site === "string" ? params.site : "ALL",
     ownerId: typeof params.owner === "string" ? params.owner : "ALL",
   };

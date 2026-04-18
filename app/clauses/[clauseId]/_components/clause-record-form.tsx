@@ -69,7 +69,7 @@ export function ClauseRecordForm({ clauseId, canEdit, defaults, owners, sites }:
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">Status</label>
-          <select className="w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.status} disabled={!canEdit} name="status">
+          <select className="w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.status} disabled={!canEdit || isPending} name="status">
             {STATUS_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -81,7 +81,7 @@ export function ClauseRecordForm({ clauseId, canEdit, defaults, owners, sites }:
 
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">Owner</label>
-          <select className="w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.ownerId} disabled={!canEdit} name="ownerId">
+          <select className="w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.ownerId} disabled={!canEdit || isPending} name="ownerId">
             <option value="">Unassigned</option>
             {owners.map((owner) => (
               <option key={owner.id} value={owner.id}>
@@ -93,12 +93,12 @@ export function ClauseRecordForm({ clauseId, canEdit, defaults, owners, sites }:
 
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">Target date</label>
-          <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.targetDate} disabled={!canEdit} name="targetDate" type="date" />
+          <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.targetDate} disabled={!canEdit || isPending} name="targetDate" type="date" />
         </div>
 
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">Review date</label>
-          <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.reviewDate} disabled={!canEdit} name="reviewDate" type="date" />
+          <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.reviewDate} disabled={!canEdit || isPending} name="reviewDate" type="date" />
           {state.fieldErrors?.reviewDate ? <p className="mt-1 text-xs text-red-600">{state.fieldErrors.reviewDate}</p> : null}
         </div>
       </div>
@@ -113,7 +113,7 @@ export function ClauseRecordForm({ clauseId, canEdit, defaults, owners, sites }:
               <label className="flex items-center gap-2 text-sm" key={site.id}>
                 <input
                   defaultChecked={defaults.linkedSiteIds.includes(site.id)}
-                  disabled={!canEdit}
+                  disabled={!canEdit || isPending}
                   name="linkedSiteIds"
                   type="checkbox"
                   value={site.id}
@@ -128,24 +128,26 @@ export function ClauseRecordForm({ clauseId, canEdit, defaults, owners, sites }:
       <div className="space-y-4">
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">Relevant processes/procedures</label>
-          <textarea className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.processProcedures} disabled={!canEdit} name="processProcedures" />
+          <textarea className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.processProcedures} disabled={!canEdit || isPending} maxLength={4000} name="processProcedures" required />
           {state.fieldErrors?.processProcedures ? <p className="mt-1 text-xs text-red-600">{state.fieldErrors.processProcedures}</p> : null}
         </div>
 
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">How the process meets the requirement</label>
-          <textarea className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.processMeetsRequirement} disabled={!canEdit} name="processMeetsRequirement" />
+          <textarea className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.processMeetsRequirement} disabled={!canEdit || isPending} maxLength={4000} name="processMeetsRequirement" required />
           {state.fieldErrors?.processMeetsRequirement ? <p className="mt-1 text-xs text-red-600">{state.fieldErrors.processMeetsRequirement}</p> : null}
         </div>
 
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">Evidence links or file paths</label>
-          <textarea className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.evidencePaths} disabled={!canEdit} name="evidencePaths" placeholder="One per line (URL or file path)" />
+          <textarea className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.evidencePaths} disabled={!canEdit || isPending} maxLength={4000} name="evidencePaths" placeholder="One per line (URL or file path)" />
+          {state.fieldErrors?.evidencePaths ? <p className="mt-1 text-xs text-red-600">{state.fieldErrors.evidencePaths}</p> : null}
         </div>
 
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">Gap / action needed</label>
-          <textarea className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.gapActionNeeded} disabled={!canEdit} name="gapActionNeeded" />
+          <textarea className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm" defaultValue={defaults.gapActionNeeded} disabled={!canEdit || isPending} maxLength={4000} name="gapActionNeeded" />
+          {state.fieldErrors?.gapActionNeeded ? <p className="mt-1 text-xs text-red-600">{state.fieldErrors.gapActionNeeded}</p> : null}
         </div>
       </div>
 
