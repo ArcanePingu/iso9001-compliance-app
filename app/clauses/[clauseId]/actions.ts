@@ -5,6 +5,11 @@ import { revalidatePath } from "next/cache";
 
 import { buildComplianceRecordFieldChanges, createAuditLogs } from "@/lib/audit";
 import { validatePlainTextComment } from "@/lib/comments";
+import {
+  createCommentAddedNotifications,
+  createComplianceRecordCreatedNotifications,
+  createComplianceRecordUpdatedNotifications,
+} from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 import { hasPermission, requireAuth } from "@/src/lib/auth";
 
@@ -299,6 +304,23 @@ export async function saveClauseRecordAction(
         changes: fieldChanges,
       });
 
+      const recipients = [ownerId || profile?.id || ""].filter(Boolean);
+      if (latestRecord) {
+        await createComplianceRecordUpdatedNotifications(tx, {
+          recipientUserIds: recipients,
+          relatedEntityId: record.id,
+          title: "Compliance record updated",
+          message: `Compliance record for clause ${clause.clauseNumber} was updated.`,
+        });
+      } else {
+        await createComplianceRecordCreatedNotifications(tx, {
+          recipientUserIds: recipients,
+          relatedEntityId: record.id,
+          title: "Compliance record created",
+          message: `Compliance record for clause ${clause.clauseNumber} was created.`,
+        });
+      }
+
       return record;
     });
 
@@ -356,12 +378,40 @@ export async function addComplianceRecordCommentAction(
   }
 
   try {
-    await prisma.comment.create({
-      data: {
-        complianceRecordId,
-        authorProfileId: profile?.id ?? null,
-        body: commentBody,
-      },
+    await prisma.$transaction(async (tx) => {
+      const comment = await tx.comment.create({
+        data: {
+          complianceRecordId,
+          authorProfileId: profile?.id ?? null,
+          body: commentBody,
+        },
+      });
+
+      const recipients = (
+        await tx.complianceRecord.findUnique({
+          where: { id: complianceRecordId },
+          select: {
+            createdByProfileId: true,
+            comments: {
+              select: { authorProfileId: true },
+            },
+          },
+        })
+      );
+
+      const recipientUserIds = [
+        recipients?.createdByProfileId ?? null,
+        ...(recipients?.comments.map((entry) => entry.authorProfileId ?? null) ?? []),
+      ]
+        .filter((id): id is string => Boolean(id))
+        .filter((id) => id !== (profile?.id ?? ""));
+
+      await createCommentAddedNotifications(tx, {
+        recipientUserIds,
+        relatedEntityId: comment.id,
+        title: "Comment added",
+        message: "A new comment was added to a compliance record you're following.",
+      });
     });
 
     revalidatePath(`/clauses/${clauseId}`);
