@@ -1,8 +1,9 @@
 "use server";
 
-import { ComplianceStatus, EntityType, Prisma } from "@prisma/client";
+import { AuditActionType, ComplianceStatus, EntityType, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
+import { buildComplianceRecordFieldChanges, createAuditLogs } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { hasPermission, requireAuth } from "@/src/lib/auth";
 
@@ -182,7 +183,19 @@ export async function saveClauseRecordAction(
           complianceRecords: {
             orderBy: { updatedAt: "desc" },
             take: 1,
-            select: { id: true, details: true },
+            select: {
+              id: true,
+              status: true,
+              createdByProfileId: true,
+              dueDate: true,
+              evidenceUrl: true,
+              details: true,
+              sites: {
+                select: {
+                  siteId: true,
+                },
+              },
+            },
           },
         },
       });
@@ -192,8 +205,9 @@ export async function saveClauseRecordAction(
       }
 
       const latestRecord = clause.complianceRecords[0];
+      const previousDetails = parseComplianceDetails(latestRecord?.details ?? null);
       const mergedDetails = {
-        ...parseComplianceDetails(latestRecord?.details ?? null),
+        ...previousDetails,
         reviewDate: reviewDateRaw ? reviewDateRaw.toISOString() : null,
         processProcedures,
         processMeetsRequirement,
@@ -208,7 +222,7 @@ export async function saveClauseRecordAction(
               status: status as ComplianceStatus,
               createdByProfileId: ownerId || profile?.id || null,
               dueDate: targetDate,
-              evidenceUrl: evidencePaths || null,
+              evidenceUrl: evidencePaths || null, // Backward-compatible mirror field.
               details: serializeComplianceDetails(mergedDetails),
               title: `Clause ${clause.clauseNumber} compliance record`,
             },
@@ -227,6 +241,32 @@ export async function saveClauseRecordAction(
             select: { id: true },
           });
 
+      const previousSnapshot = latestRecord
+        ? {
+            status: latestRecord.status,
+            ownerId: latestRecord.createdByProfileId,
+            targetDate: latestRecord.dueDate,
+            reviewDate: previousDetails.reviewDate,
+            processProcedures: previousDetails.processProcedures,
+            processMeetsRequirement: previousDetails.processMeetsRequirement,
+            evidenceLinks: previousDetails.evidencePaths || latestRecord.evidenceUrl || "",
+            gapActionNeeded: previousDetails.gapActionNeeded,
+            linkedSites: latestRecord.sites.map((site) => site.siteId),
+          }
+        : null;
+
+      const nextSnapshot = {
+        status: status as ComplianceStatus,
+        ownerId: ownerId || profile?.id || null,
+        targetDate,
+        reviewDate: mergedDetails.reviewDate,
+        processProcedures: mergedDetails.processProcedures,
+        processMeetsRequirement: mergedDetails.processMeetsRequirement,
+        evidenceLinks: mergedDetails.evidencePaths,
+        gapActionNeeded: mergedDetails.gapActionNeeded,
+        linkedSites: linkedSiteIds,
+      };
+
       await tx.complianceRecordSite.deleteMany({
         where: { complianceRecordId: record.id },
       });
@@ -237,15 +277,13 @@ export async function saveClauseRecordAction(
         });
       }
 
-      await tx.auditLog.create({
-        data: {
-          entityType: EntityType.COMPLIANCE_RECORD,
-          entityId: record.id,
-          fieldChanged: "compliance_record_saved",
-          oldValue: null,
-          newValue: JSON.stringify({ status, targetDate: targetDate?.toISOString() ?? null }),
-          changedByProfileId: profile?.id ?? null,
-        },
+      const fieldChanges = buildComplianceRecordFieldChanges(previousSnapshot, nextSnapshot);
+      await createAuditLogs(tx, {
+        entityType: EntityType.COMPLIANCE_RECORD,
+        entityId: record.id,
+        actionType: latestRecord ? AuditActionType.UPDATE : AuditActionType.CREATE,
+        changedByProfileId: profile?.id ?? null,
+        changes: fieldChanges,
       });
 
       return record;

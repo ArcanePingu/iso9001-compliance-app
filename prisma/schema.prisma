@@ -42,6 +42,12 @@ enum EntityType {
   NOTIFICATION
 }
 
+enum AuditActionType {
+  CREATE
+  UPDATE
+  DELETE
+}
+
 model Role {
   id          Int       @id @default(autoincrement())
   code        RoleCode  @unique
@@ -220,7 +226,8 @@ model AuditLog {
   id                 String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   entityType         EntityType
   entityId           String
-  fieldChanged       String
+  actionType         AuditActionType @default(UPDATE)
+  fieldName          String
   oldValue           String?
   newValue           String?
   changedByProfileId String?    @db.Uuid
