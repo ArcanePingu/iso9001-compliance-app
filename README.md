@@ -1,103 +1,94 @@
-# ISO 9001 Compliance App (Supabase Auth)
+# ISO 9001 Compliance App (Next.js + Supabase + Prisma)
 
-## Environment setup
+Internal ISO 9001 compliance application built with Next.js App Router, Supabase Auth, and Prisma on Postgres.
 
-Create `.env.local` from `.env.example` and set:
+## Environment Variables
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+Create `.env.local` from `.env.example`.
 
-## Minimal profile table
+Required variables:
 
-Store app-level role/profile metadata separately from Supabase Auth users:
+- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon/public key.
+- `DATABASE_URL` - **Pooled** Postgres connection string (runtime queries, serverless-safe).
+- `DIRECT_URL` - **Direct** Postgres connection string (migrations).
 
-```sql
-create table if not exists public.profiles (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid unique not null references auth.users(id) on delete cascade,
-  full_name text,
-  role text not null default 'viewer' check (role in ('admin','staff','viewer')),
-  created_at timestamptz not null default now()
-);
-```
+> For Supabase + Prisma on Vercel, keep `DATABASE_URL` on the pooler host/port and `DIRECT_URL` on the direct `db.<project-ref>.supabase.co:5432` host.
 
-This app safely handles signed-in users who do not have a `profiles` row yet by defaulting to `viewer` permissions.
-# ISO 9001 Compliance App (Next.js + TypeScript)
-
-Starter project for a professional internal compliance and quality management application.
-
-## Tech Stack
-
-- Next.js (App Router)
-- TypeScript
-- Tailwind CSS
-- shadcn/ui foundation (`components.json`, `cn` helper, UI primitives)
-- Prisma ORM
-- Supabase JavaScript client
-
-## Project Structure
-
-```text
-app/
-components/
-  layout/
-  ui/
-lib/
-prisma/
-types/
-```
-
-## Local Setup
-
-1. Install dependencies:
+## Local Development
 
 ```bash
 npm install
-```
-
-2. Create environment variables:
-
-```bash
 cp .env.example .env.local
-```
-
-3. Start development server:
-
-```bash
 npm run dev
 ```
 
-4. Open the app:
+App URL: <http://localhost:3000>
 
-- http://localhost:3000
-
-## Database (Prisma)
-
-Generate Prisma client:
+## Prisma Commands
 
 ```bash
-npm run prisma:generate
-```
-
-Run a local migration:
-
-```bash
-npm run prisma:migrate -- --name init
-```
-
-## Useful Commands
-
-```bash
-npm run dev
-npm run build
-npm run start
-npm run lint
-npm run typecheck
+npm run prisma:format
+npm run prisma:validate
 npm run prisma:generate
 npm run prisma:migrate -- --name init
+npm run prisma:migrate:deploy
+npm run prisma:seed
 ```
 
-## Notes
+## Deploying to Vercel with Supabase
 
-- Navigation placeholders are included for Dashboard, Clauses, Actions, Notifications, and Admin.
-- The app shell includes a sidebar, top header, and content area suitable for internal business tooling.
+### 1) Create Supabase project + database
+
+- Create a Supabase project.
+- Copy the project URL and anon key.
+- Copy both database connection strings:
+  - pooled connection (for `DATABASE_URL`)
+  - direct connection (for `DIRECT_URL`)
+
+### 2) Configure Vercel environment variables
+
+In **Vercel → Project → Settings → Environment Variables**, add for Production (and Preview if needed):
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `DATABASE_URL`
+- `DIRECT_URL`
+
+### 3) Build & migrate settings
+
+This repo uses:
+
+- `postinstall: prisma generate` (ensures Prisma Client exists in Vercel build)
+- `npm run prisma:migrate:deploy` for production-safe migrations
+
+Set Vercel build command to:
+
+```bash
+npm run prisma:migrate:deploy && npm run build
+```
+
+### 4) Deploy
+
+- Push to your connected Git provider.
+- Trigger Vercel deployment.
+- Confirm health endpoint:
+  - `GET /healthz` returns `{ "ok": true }`.
+
+## Auth & Routing Behavior
+
+- Public routes:
+  - `/`
+  - `/login`
+  - `/unauthorized`
+  - `/healthz`
+- All other app routes are protected by middleware and redirect unauthenticated users to `/login?next=<path>`.
+- `/` performs a safe auth-based redirect:
+  - authenticated → `/clauses`
+  - unauthenticated → `/login`
+
+## Production Notes
+
+- Missing Supabase env in production now returns a clear HTTP 500 JSON error from middleware instead of opaque failures.
+- `DIRECT_URL` is required by Prisma schema for migrations.
+- Keep the pooled URL in `DATABASE_URL` to avoid serverless connection exhaustion.
