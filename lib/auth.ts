@@ -1,13 +1,15 @@
+import type { RoleCode } from "@prisma/client";
 import { redirect } from "next/navigation";
 
+import { prisma } from "@/lib/prisma";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AppRole = "admin" | "staff" | "viewer";
 
 export type AppProfile = {
   id: string;
-  user_id: string;
-  full_name: string | null;
+  authUserId: string;
+  fullName: string | null;
   role: AppRole;
 };
 
@@ -34,6 +36,17 @@ const ROLE_PERMISSIONS: Record<AppRole, ReadonlySet<AppPermission>> = {
   ]),
 };
 
+function toAppRole(roleCode: RoleCode | null | undefined): AppRole {
+  switch (roleCode) {
+    case "ADMIN":
+      return "admin";
+    case "STAFF":
+      return "staff";
+    default:
+      return "viewer";
+  }
+}
+
 export function hasPermission(role: AppRole, permission: AppPermission): boolean {
   return ROLE_PERMISSIONS[role].has(permission);
 }
@@ -49,16 +62,34 @@ export async function getCurrentUserWithProfile() {
     return { user: null, profile: null, role: null as AppRole | null };
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id,user_id,full_name,role")
-    .eq("user_id", user.id)
-    .maybeSingle<AppProfile>();
+  const profile = await prisma.profile.findUnique({
+    where: { authUserId: user.id },
+    select: {
+      id: true,
+      authUserId: true,
+      fullName: true,
+      role: {
+        select: {
+          code: true,
+        },
+      },
+    },
+  });
 
-  // Safe fallback for signed-in users that do not have a profile yet.
-  const role: AppRole = profile?.role ?? "viewer";
+  const role = toAppRole(profile?.role.code);
 
-  return { user, profile: profile ?? null, role };
+  return {
+    user,
+    profile: profile
+      ? {
+          id: profile.id,
+          authUserId: profile.authUserId,
+          fullName: profile.fullName,
+          role,
+        }
+      : null,
+    role,
+  };
 }
 
 export async function requireAuth(options?: {

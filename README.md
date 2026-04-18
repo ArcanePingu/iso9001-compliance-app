@@ -15,23 +15,72 @@ Required variables:
 
 > For Supabase + Prisma on Vercel, keep `DATABASE_URL` on the pooler host/port and `DIRECT_URL` on the direct `db.<project-ref>.supabase.co:5432` host.
 
-## Local Development
+## Local setup
+
+### 1) Install dependencies
 
 ```bash
 npm install
+```
+
+### 2) Create local environment file
+
+```bash
 cp .env.example .env.local
+```
+
+Populate `.env.local` with real Supabase values:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `DATABASE_URL` (pooled Supabase Postgres URL)
+- `DIRECT_URL` (direct Supabase Postgres URL on `:5432`)
+
+### 3) Verify Prisma can connect to Supabase Postgres
+
+```bash
+npm run prisma:validate
+npm run prisma:migrate:status
+```
+
+Expected result: Prisma schema validates and migration status prints the current DB migration state with no connection error.
+
+### 4) Run local DB migrations and seed
+
+```bash
+npm run prisma:migrate -- --name init
+npm run prisma:seed
+```
+
+Expected result:
+
+- migration command reports successful apply (or no-op if already up to date)
+- seed logs `Seeded 3 roles and <n> ISO clauses.`
+
+### 5) Start the app
+
+```bash
 npm run dev
 ```
 
 App URL: <http://localhost:3000>
 
+### 6) Verify auth locally
+
+- Visit `/login` and sign in with a valid Supabase email/password user.
+- Authenticated users should be redirected to `/clauses`.
+- Unauthenticated requests to protected routes (for example `/admin`) should redirect to `/login?next=...`.
+
 ## Prisma Commands
+
+All Prisma scripts automatically load `.env.local`.
 
 ```bash
 npm run prisma:format
 npm run prisma:validate
 npm run prisma:generate
-npm run prisma:migrate -- --name init
+npm run prisma:migrate -- --name <change_name>
+npm run prisma:migrate:status
 npm run prisma:migrate:deploy
 npm run prisma:seed
 ```
