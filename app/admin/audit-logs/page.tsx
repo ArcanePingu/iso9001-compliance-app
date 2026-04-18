@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { EntityType } from "@prisma/client";
 
-import { AppShell } from "@/components/layout/app-shell";
+import { AdminNav } from "@/components/admin/admin-nav";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/src/lib/auth";
 
 function formatDateTime(value: Date) {
   return new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(value);
@@ -14,8 +13,6 @@ export default async function AdminAuditLogPage({
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireAuth({ permission: "view_admin_pages" });
-
   const resolvedSearchParams = (await searchParams) ?? {};
   const entityType = typeof resolvedSearchParams.entityType === "string"
     ? resolvedSearchParams.entityType
@@ -58,17 +55,19 @@ export default async function AdminAuditLogPage({
   ]);
 
   return (
-    <AppShell>
-      <section className="space-y-6 rounded-lg border bg-card p-6 shadow-panel">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-semibold">Audit log</h1>
-            <p className="text-sm text-muted-foreground">Recent change history across entities.</p>
+    <section className="space-y-6 rounded-lg border bg-card p-6 shadow-panel">
+        <header className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h1 className="text-xl font-semibold">Audit log</h1>
+              <p className="text-sm text-muted-foreground">Recent change history across entities.</p>
+            </div>
+            <Link className="rounded-md border px-3 py-2 text-sm" href="/admin">
+              Back to admin
+            </Link>
           </div>
-          <Link className="rounded-md border px-3 py-2 text-sm" href="/admin">
-            Back to admin
-          </Link>
-        </div>
+          <AdminNav currentPath="/admin/audit-logs" />
+        </header>
 
         <form className="grid gap-3 rounded-md border bg-background/40 p-4 md:grid-cols-4" method="get">
           <label className="space-y-1 text-sm">
@@ -136,7 +135,6 @@ export default async function AdminAuditLogPage({
             </tbody>
           </table>
         </div>
-      </section>
-    </AppShell>
+    </section>
   );
 }
