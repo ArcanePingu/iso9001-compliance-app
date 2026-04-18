@@ -8,14 +8,15 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "prisma:format": "prisma format",
-    "prisma:validate": "prisma validate",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "tsx prisma/seed.ts",
-    "postinstall": "prisma generate",
-    "prisma:migrate:deploy": "prisma migrate deploy",
-    "prisma:import:matrix": "tsx prisma/import-compliance-matrix.ts"
+    "prisma:format": "dotenv -e .env.local -- prisma format",
+    "prisma:validate": "dotenv -e .env.local -- prisma validate",
+    "prisma:generate": "dotenv -e .env.local -- prisma generate",
+    "prisma:migrate": "dotenv -e .env.local -- prisma migrate dev",
+    "prisma:seed": "dotenv -e .env.local -- tsx prisma/seed.ts",
+    "postinstall": "dotenv -e .env.local -- prisma generate",
+    "prisma:migrate:deploy": "dotenv -e .env.local -- prisma migrate deploy",
+    "prisma:import:matrix": "dotenv -e .env.local -- tsx prisma/import-compliance-matrix.ts",
+    "prisma:migrate:status": "dotenv -e .env.local -- prisma migrate status"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -44,6 +45,7 @@
     "prisma": "^6.7.0",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "dotenv-cli": "^7.4.2"
   }
 }
