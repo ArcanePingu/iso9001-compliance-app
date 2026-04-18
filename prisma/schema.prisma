@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum RoleCode {
+  ADMIN
+  STAFF
+  VIEWER
+}
+
+enum ComplianceStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLIANT
+  NON_COMPLIANT
+  OBSERVATION
+  CLOSED
+}
+
+enum ActionStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  CANCELLED
+}
+
+enum EntityType {
+  ROLE
+  PROFILE
+  SITE
+  ISO_CLAUSE
+  COMPLIANCE_RECORD
+  COMMENT
+  ACTION
+  NOTIFICATION
+}
+
+model Role {
+  id          Int       @id @default(autoincrement())
+  code        RoleCode  @unique
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  profiles    Profile[]
+}
+
+model Profile {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  authUserId String    @unique @db.Uuid
+  email      String?   @unique
+  fullName   String?
+  roleId     Int
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  role              Role               @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  createdRecords    ComplianceRecord[] @relation("ComplianceRecordCreatedBy")
+  comments          Comment[]
+  createdActions    Action[]           @relation("ActionCreatedBy")
+  assignedActions   Action[]           @relation("ActionAssignedTo")
+  notifications     Notification[]     @relation("NotificationRecipient")
+  createdLogs       AuditLog[]         @relation("AuditLogChangedBy")
+
+  @@index([roleId])
+}
+
+model Site {
+  id        String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code      String                 @unique
+  name      String
+  location  String?
+  isActive  Boolean                @default(true)
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+
+  complianceRecordSites ComplianceRecordSite[]
+  actionSites           ActionSite[]
+
+  @@index([name])
+}
+
+model IsoClause {
+  id          String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clauseCode  String             @unique
+  title       String
+  description String?
+  sortOrder   Int?
+  isActive    Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  complianceRecords ComplianceRecord[]
+
+  @@index([sortOrder])
+}
+
+model ComplianceRecord {
+  id                  String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  isoClauseId         String                 @db.Uuid
+  title               String
+  details             String?
+  status              ComplianceStatus       @default(DRAFT)
+  evidenceUrl         String?
+  dueDate             DateTime?
+  createdByProfileId  String?                @db.Uuid
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  isoClause           IsoClause              @relation(fields: [isoClauseId], references: [id], onDelete: Restrict)
+  createdBy           Profile?               @relation("ComplianceRecordCreatedBy", fields: [createdByProfileId], references: [id], onDelete: SetNull)
+  sites               ComplianceRecordSite[]
+  comments            Comment[]
+  actions             Action[]
+
+  @@index([isoClauseId])
+  @@index([status])
+  @@index([createdByProfileId])
+  @@index([dueDate])
+}
+
+model ComplianceRecordSite {
+  id                 String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  complianceRecordId String            @db.Uuid
+  siteId             String            @db.Uuid
+  createdAt          DateTime          @default(now())
+
+  complianceRecord   ComplianceRecord  @relation(fields: [complianceRecordId], references: [id], onDelete: Cascade)
+  site               Site              @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([complianceRecordId, siteId])
+  @@index([siteId])
+}
+
+model Comment {
+  id                 String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  complianceRecordId String            @db.Uuid
+  authorProfileId    String?           @db.Uuid
+  body               String
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  complianceRecord   ComplianceRecord  @relation(fields: [complianceRecordId], references: [id], onDelete: Cascade)
+  author             Profile?          @relation(fields: [authorProfileId], references: [id], onDelete: SetNull)
+
+  @@index([complianceRecordId, createdAt])
+  @@index([authorProfileId])
+}
+
+model Action {
+  id                 String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  complianceRecordId String            @db.Uuid
+  title              String
+  description        String?
+  status             ActionStatus      @default(OPEN)
+  dueDate            DateTime?
+  createdByProfileId String?           @db.Uuid
+  assignedToProfileId String?          @db.Uuid
+  completedAt        DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  complianceRecord   ComplianceRecord  @relation(fields: [complianceRecordId], references: [id], onDelete: Cascade)
+  createdBy          Profile?          @relation("ActionCreatedBy", fields: [createdByProfileId], references: [id], onDelete: SetNull)
+  assignedTo         Profile?          @relation("ActionAssignedTo", fields: [assignedToProfileId], references: [id], onDelete: SetNull)
+  sites              ActionSite[]
+
+  @@index([complianceRecordId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([createdByProfileId])
+  @@index([assignedToProfileId])
+}
+
+model ActionSite {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actionId  String   @db.Uuid
+  siteId    String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  action    Action   @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([actionId, siteId])
+  @@index([siteId])
+}
+
+model Notification {
+  id                 String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  recipientProfileId String?    @db.Uuid
+  title              String
+  message            String
+  entityType         EntityType
+  entityId           String
+  readAt             DateTime?
+  createdAt          DateTime   @default(now())
+
+  recipient          Profile?   @relation("NotificationRecipient", fields: [recipientProfileId], references: [id], onDelete: SetNull)
+
+  @@index([recipientProfileId, readAt])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id                 String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  entityType         EntityType
+  entityId           String
+  fieldChanged       String
+  oldValue           String?
+  newValue           String?
+  changedByProfileId String?    @db.Uuid
+  changedAt          DateTime   @default(now())
+
+  changedBy          Profile?   @relation("AuditLogChangedBy", fields: [changedByProfileId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([changedByProfileId])
+  @@index([changedAt])
+}
