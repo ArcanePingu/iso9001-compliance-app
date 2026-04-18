@@ -16,6 +16,17 @@ function formatDate(value?: Date | null) {
   return new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(value);
 }
 
+function formatDateTime(value?: Date | null) {
+  if (!value) {
+    return "Unknown";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(value);
+}
+
 function formatDateInputValue(value?: Date | null) {
   if (!value) {
     return "";
@@ -279,9 +290,13 @@ export default async function ClauseDetailPage({
                 ) : (
                   auditHistory.map((item) => (
                     <li className="space-y-1" key={item.id}>
-                      <p className="font-medium">{item.fieldChanged.replaceAll("_", " ")}</p>
+                      <p className="font-medium">{item.fieldName.replaceAll("_", " ")}</p>
+                      <p className="text-xs text-muted-foreground">Action: {item.actionType}</p>
                       <p className="text-xs text-muted-foreground">
-                        {item.changedBy?.fullName ?? item.changedBy?.email ?? "System"} · {formatDate(item.changedAt)}
+                        {item.oldValue ?? "—"} → {item.newValue ?? "—"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {item.changedBy?.fullName ?? item.changedBy?.email ?? "System"} · {formatDateTime(item.changedAt)}
                       </p>
                     </li>
                   ))
