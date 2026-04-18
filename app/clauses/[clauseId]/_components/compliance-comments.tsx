@@ -85,9 +85,13 @@ export function ComplianceComments({ clauseId, complianceRecordId, canEdit, comm
           </label>
           <textarea
             className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm"
+            disabled={isPending}
             id="commentBody"
+            maxLength={2000}
+            minLength={2}
             name="commentBody"
             placeholder="Write a plain-text comment"
+            required
           />
           {state.fieldErrors?.commentBody ? (
             <p className="text-xs text-red-600">{state.fieldErrors.commentBody}</p>

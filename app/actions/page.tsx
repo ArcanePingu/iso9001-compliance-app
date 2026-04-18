@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { ActionStatus } from "@prisma/client";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { getActionListData } from "@/lib/queries/actions";
+import { requireAuth } from "@/src/lib/auth";
 import type { ActionListFilters } from "@/types/actions";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -38,16 +40,27 @@ function getFilterValue(value?: string) {
   return value;
 }
 
+function parseStatusFilter(value: string | string[] | undefined): ActionListFilters["status"] {
+  if (typeof value !== "string" || value === "ALL") {
+    return "ALL";
+  }
+
+  return Object.values(ActionStatus).includes(value as ActionStatus)
+    ? (value as ActionStatus)
+    : "ALL";
+}
+
 export default async function ActionsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await requireAuth({ permission: "read_compliance" });
   const params = await searchParams;
 
   const filters: ActionListFilters = {
     query: typeof params.query === "string" ? params.query : undefined,
-    status: typeof params.status === "string" ? (params.status as ActionListFilters["status"]) : "ALL",
+    status: parseStatusFilter(params.status),
     siteId: typeof params.site === "string" ? params.site : "ALL",
     ownerId: typeof params.owner === "string" ? params.owner : "ALL",
   };

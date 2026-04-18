@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import { createAuditLogs } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
+import { normalizeOptionalText, normalizeText, parseBooleanInput, parseIntegerInput, parseUuidInput } from "@/lib/validation";
 import { requireAuth } from "@/src/lib/auth";
 
 function buildSearchTarget(pathname: string, status: "success" | "error", message: string) {
@@ -17,28 +18,14 @@ function buildSearchTarget(pathname: string, status: "success" | "error", messag
   return `${pathname}?${params.toString()}`;
 }
 
-function normalizeOptionalText(value: FormDataEntryValue | null) {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
 export async function updateUserRoleAction(formData: FormData) {
   const { profile } = await requireAuth({ permission: "manage_users" });
 
-  const profileId = String(formData.get("profileId") ?? "").trim();
-  const roleIdRaw = String(formData.get("roleId") ?? "").trim();
+  const profileId = parseUuidInput(formData.get("profileId"));
+  const roleId = parseIntegerInput(formData.get("roleId"));
 
-  if (!profileId || !roleIdRaw) {
+  if (!profileId || roleId === null) {
     redirect(buildSearchTarget("/admin/users", "error", "Profile and role are required."));
-  }
-
-  const roleId = Number(roleIdRaw);
-  if (!Number.isInteger(roleId)) {
-    redirect(buildSearchTarget("/admin/users", "error", "Select a valid role."));
   }
 
   try {
@@ -88,14 +75,12 @@ export async function updateUserRoleAction(formData: FormData) {
 export async function updateUserStatusAction(formData: FormData) {
   const { profile } = await requireAuth({ permission: "manage_users" });
 
-  const profileId = String(formData.get("profileId") ?? "").trim();
-  const isActiveRaw = String(formData.get("isActive") ?? "").trim();
+  const profileId = parseUuidInput(formData.get("profileId"));
+  const isActive = parseBooleanInput(formData.get("isActive"));
 
-  if (!profileId || !["true", "false"].includes(isActiveRaw)) {
+  if (!profileId || isActive === null) {
     redirect(buildSearchTarget("/admin/users", "error", "Invalid user status payload."));
   }
-
-  const isActive = isActiveRaw === "true";
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -134,8 +119,8 @@ export async function updateUserStatusAction(formData: FormData) {
 export async function createSiteAction(formData: FormData) {
   const { profile } = await requireAuth({ permission: "manage_sites" });
 
-  const code = String(formData.get("code") ?? "").trim().toUpperCase();
-  const name = String(formData.get("name") ?? "").trim();
+  const code = normalizeText(formData.get("code")).toUpperCase();
+  const name = normalizeText(formData.get("name"));
   const location = normalizeOptionalText(formData.get("location"));
 
   if (!code || !name) {
@@ -144,6 +129,9 @@ export async function createSiteAction(formData: FormData) {
 
   if (code.length > 20) {
     redirect(buildSearchTarget("/admin/sites", "error", "Site code must be 20 characters or fewer."));
+  }
+  if (name.length > 120) {
+    redirect(buildSearchTarget("/admin/sites", "error", "Site name must be 120 characters or fewer."));
   }
 
   try {
@@ -186,17 +174,21 @@ export async function createSiteAction(formData: FormData) {
 export async function updateSiteAction(formData: FormData) {
   const { profile } = await requireAuth({ permission: "manage_sites" });
 
-  const siteId = String(formData.get("siteId") ?? "").trim();
-  const code = String(formData.get("code") ?? "").trim().toUpperCase();
-  const name = String(formData.get("name") ?? "").trim();
+  const siteId = parseUuidInput(formData.get("siteId"));
+  const code = normalizeText(formData.get("code")).toUpperCase();
+  const name = normalizeText(formData.get("name"));
   const location = normalizeOptionalText(formData.get("location"));
-  const isActiveRaw = String(formData.get("isActive") ?? "").trim();
+  const isActive = parseBooleanInput(formData.get("isActive"));
 
-  if (!siteId || !code || !name || !["true", "false"].includes(isActiveRaw)) {
+  if (!siteId || !code || !name || isActive === null) {
     redirect(buildSearchTarget("/admin/sites", "error", "Invalid site update payload."));
   }
-
-  const isActive = isActiveRaw === "true";
+  if (code.length > 20) {
+    redirect(buildSearchTarget("/admin/sites", "error", "Site code must be 20 characters or fewer."));
+  }
+  if (name.length > 120) {
+    redirect(buildSearchTarget("/admin/sites", "error", "Site name must be 120 characters or fewer."));
+  }
 
   try {
     await prisma.$transaction(async (tx) => {

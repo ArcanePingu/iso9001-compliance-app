@@ -1,4 +1,5 @@
 import { AdminNav } from "@/components/admin/admin-nav";
+import { StatusMessage } from "@/components/ui/status-message";
 import { prisma } from "@/lib/prisma";
 
 import { createSiteAction, updateSiteAction } from "../actions";
@@ -43,23 +44,19 @@ export default async function AdminSitesPage({
         <AdminNav currentPath="/admin/sites" />
       </header>
 
-      {status && message ? (
-        <p className={`rounded-md border px-3 py-2 text-sm ${status === "error" ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
-          {message}
-        </p>
-      ) : null}
+      {status && message ? <StatusMessage message={message} status={status === "error" ? "error" : "success"} /> : null}
 
       <section className="rounded-md border bg-background/40 p-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Create site</h2>
         <form action={createSiteAction} className="mt-3 grid gap-3 md:grid-cols-4">
           <label className="text-sm">
             <span className="mb-1 block text-xs uppercase tracking-wide text-muted-foreground">Code</span>
-            <input className="w-full rounded-md border bg-background px-3 py-2" maxLength={20} name="code" placeholder="NYC-01" required type="text" />
+            <input className="w-full rounded-md border bg-background px-3 py-2" maxLength={20} name="code" pattern="[A-Za-z0-9_-]+" placeholder="NYC-01" required title="Use letters, numbers, hyphens, or underscores." type="text" />
           </label>
 
           <label className="text-sm">
             <span className="mb-1 block text-xs uppercase tracking-wide text-muted-foreground">Name</span>
-            <input className="w-full rounded-md border bg-background px-3 py-2" name="name" placeholder="New York Facility" required type="text" />
+            <input className="w-full rounded-md border bg-background px-3 py-2" maxLength={120} name="name" placeholder="New York Facility" required type="text" />
           </label>
 
           <label className="text-sm md:col-span-2">
@@ -86,12 +83,12 @@ export default async function AdminSitesPage({
 
                 <label className="text-sm lg:col-span-2">
                   <span className="mb-1 block text-xs uppercase tracking-wide text-muted-foreground">Code</span>
-                  <input className="w-full rounded-md border bg-background px-3 py-2" defaultValue={site.code} maxLength={20} name="code" required type="text" />
+                  <input className="w-full rounded-md border bg-background px-3 py-2" defaultValue={site.code} maxLength={20} name="code" pattern="[A-Za-z0-9_-]+" required title="Use letters, numbers, hyphens, or underscores." type="text" />
                 </label>
 
                 <label className="text-sm lg:col-span-3">
                   <span className="mb-1 block text-xs uppercase tracking-wide text-muted-foreground">Name</span>
-                  <input className="w-full rounded-md border bg-background px-3 py-2" defaultValue={site.name} name="name" required type="text" />
+                  <input className="w-full rounded-md border bg-background px-3 py-2" defaultValue={site.name} maxLength={120} name="name" required type="text" />
                 </label>
 
                 <label className="text-sm lg:col-span-3">

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { StatusMessage } from "@/components/ui/status-message";
 
 import { AdminNav } from "@/components/admin/admin-nav";
 
@@ -52,11 +53,7 @@ export default async function AdminUsersPage({
         <AdminNav currentPath="/admin/users" />
       </header>
 
-      {status && message ? (
-        <p className={`rounded-md border px-3 py-2 text-sm ${status === "error" ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
-          {message}
-        </p>
-      ) : null}
+      {status && message ? <StatusMessage message={message} status={status === "error" ? "error" : "success"} /> : null}
 
       <div className="overflow-x-auto rounded-md border">
         <table className="min-w-full text-sm">
